@@ -4,10 +4,11 @@
     <div class="trading-vue" v-bind:id="id"
         @mousedown="mousedown" @mouseleave="mouseleave"
          :style="{
-            color: this.chart_props.colors.text,
-            font: this.font_comp,
-            width: this.width+'px',
-            height: this.height+'px'}">
+            color: chart_props.colors.text,
+            font: font_comp,
+            width: width+'px',
+            height: height+'px'
+        }">
         <toolbar v-if="toolbar"
             ref="toolbar"
             v-on:custom-event="custom_event"
@@ -36,20 +37,21 @@
 </template>
 
 <script>
+import { ref, computed, getCurrentInstance } from 'vue-demi'
 
 import Const from './stuff/constants.js'
 import Chart from './components/Chart.vue'
 import Toolbar from './components/Toolbar.vue'
 import Widgets from './components/Widgets.vue'
 import TheTip from './components/TheTip.vue'
-import XControl from './mixins/xcontrol.js'
+
+import { useXControl } from './composable/xcontrol'
 
 export default {
     name: 'TradingVue',
     components: {
         Chart, Toolbar, Widgets, TheTip
     },
-    mixins: [ XControl ],
     props: {
         titleTxt: {
             type: String,
@@ -246,9 +248,6 @@ export default {
                 this.skin_proto.font : this.font
         }
     },
-    data() {
-        return { reset: 0, tip: null }
-    },
     beforeDestroy() {
         this.custom_event({ event: 'before-destroy' })
         this.ctrl_destroy()
@@ -359,6 +358,33 @@ export default {
         },
         mouseleave() {
             this.$refs.chart.activated = false
+        }
+    },
+    setup (props) {
+        const instance = getCurrentInstance()
+        const data = computed(() => props.data)
+        const skin = computed(() => props.skin)
+        const xSettings = computed(() => props.xSettings)
+        const extensions = computed(() => props.extensions)
+        const reset = ref(0)
+        const tip = ref(null)
+
+        // TODO implements resetChart
+        const {
+            resetChart,
+        } = instance.proxy.$options.methods
+
+        const { ctrl_destroy, pre_dc, post_dc, controllers } = useXControl({
+            xSettings, data, skin, extensions, resetChart
+        })
+
+        return {
+            reset,
+            tip,
+            ctrl_destroy,
+            pre_dc,
+            post_dc,
+            controllers
         }
     }
 }
