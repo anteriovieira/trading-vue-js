@@ -1,36 +1,49 @@
 <template>
     <!-- Main component  -->
-    <div class="trading-vue" v-bind:id="id"
-        @mousedown="mousedown" @mouseleave="mouseleave"
-         :style="{
+    <div
+        :id="id"
+        class="trading-vue"
+        :style="{
             color: chart_props.colors.text,
             font: font_comp,
             width: width+'px',
             height: height+'px'
-        }">
-        <toolbar v-if="toolbar"
+        }"
+        @mousedown="mousedown"
+        @mouseleave="mouseleave"
+    >
+        <toolbar
+            v-if="toolbar"
             ref="toolbar"
-            v-on:custom-event="custom_event"
             v-bind="chart_props"
-            v-bind:config="chart_config">
-        </toolbar>
-        <widgets v-if="controllers.length"
+            :config="chart_config"
+            @custom-event="custom_event"
+        />
+        <widgets
+            v-if="controllers.length"
             ref="widgets"
-            :map="ws" :width="width" :height="height"
-            :tv="this" :dc="data">
-        </widgets>
-        <chart :key="reset"
+            :map="ws"
+            :width="width"
+            :height="height"
+            :tv="this"
+            :dc="data"
+        />
+        <chart
+            :key="reset"
             ref="chart"
             v-bind="chart_props"
-            v-bind:tv_id="id"
-            v-bind:config="chart_config"
-            v-on:custom-event="custom_event"
-            v-on:range-changed="range_changed"
-            v-on:legend-button-click="legend_button">
-        </chart>
+            :tv_id="id"
+            :config="chart_config"
+            @custom-event="custom_event"
+            @range-changed="range_changed"
+            @legend-button-click="legend_button"
+        />
         <transition name="tvjs-drift">
-            <the-tip :data="tip" v-if="tip"
-                @remove-me="tip = null"/>
+            <the-tip
+                v-if="tip"
+                :data="tip" 
+                @remove-me="tip = null"
+            />
         </transition>
     </div>
 </template>
