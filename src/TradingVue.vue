@@ -252,11 +252,6 @@ export default {
         this.ctrl_destroy()
     },
     methods: {
-        legend_button(event) {
-            this.custom_event({
-                event: 'legend-button-click', args: [event]
-            })
-        },
         custom_event(d) {
             if ('args' in d) {
                 this.$emit(d.event, ...d.args)
@@ -392,6 +387,10 @@ export default {
             tip.value = { text, color }
         }
 
+        const legend_button = (event) => {
+            custom_event({ event: 'legend-button-click', args: [event] })
+        }
+
         return {
             reset,
             tip,
@@ -404,7 +403,8 @@ export default {
             setRange,
             getRange,
             getCursor,
-            showTheTip
+            showTheTip,
+            legend_button
         }
     }
 }
