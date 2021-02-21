@@ -261,13 +261,6 @@ export default {
         }
     },
     methods: {
-        set_loader(dc) {
-            this.onrange = r => {
-                let pf = this.chart_props.ib ? '_ms' : ''
-                let tf = this.$refs.chart['interval' + pf]
-                dc.range_changed(r, tf)
-            }
-        },
         parse_colors(colors) {
             for (var k in this.$props) {
                 if (k.indexOf('color') === 0 && k !== 'colors') {
@@ -403,6 +396,14 @@ export default {
             }
         }
 
+        const set_loader = (dc) => {
+            onrange = r => {
+                let pf = chart_props.value.ib ? '_ms' : ''
+                let tf = chart.value['interval' + pf]
+                dc.range_changed(r, tf)
+            }
+        }
+
         onBeforeUnmount(() => {
             custom_event({ event: 'before-destroy' })
             ctrl_destroy()
@@ -423,7 +424,8 @@ export default {
             showTheTip,
             legend_button,
             custom_event,
-            range_changed
+            range_changed,
+            set_loader
         }
     }
 }
