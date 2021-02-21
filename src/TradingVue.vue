@@ -261,16 +261,6 @@ export default {
         }
     },
     methods: {
-        parse_colors(colors) {
-            for (var k in this.$props) {
-                if (k.indexOf('color') === 0 && k !== 'colors') {
-                    let k2 = k.replace('color', '')
-                    k2 = k2[0].toLowerCase() + k2.slice(1)
-                    if (colors[k2]) continue
-                    colors[k2] = this.$props[k]
-                }
-            }
-        },
         mousedown() {
             this.$refs.chart.activated = true
         },
@@ -404,6 +394,17 @@ export default {
             }
         }
 
+        const parse_colors = (colors) => {
+            for (var k in props) {
+                if (k.indexOf('color') === 0 && k !== 'colors') {
+                    let k2 = k.replace('color', '')
+                    k2 = k2[0].toLowerCase() + k2.slice(1)
+                    if (colors[k2]) continue
+                    colors[k2] = props[k]
+                }
+            }
+        }
+
         onBeforeUnmount(() => {
             custom_event({ event: 'before-destroy' })
             ctrl_destroy()
@@ -425,7 +426,8 @@ export default {
             legend_button,
             custom_event,
             range_changed,
-            set_loader
+            set_loader,
+            parse_colors
         }
     }
 }
