@@ -378,7 +378,7 @@ export default {
             xSettings, data, skin, extensions, resetChart
         })
 
-        const getCurso = () => {
+        const getCursor = () => {
             let cursor = chart.value.cursor
             if (chart_props.value.ib) {
                 const ti_map = chart.value.ti_map
@@ -402,7 +402,7 @@ export default {
             goto,
             setRange,
             getRange,
-            getCurso
+            getCursor
         }
     }
 }
