@@ -261,9 +261,6 @@ export default {
         }
     },
     methods: {
-        mousedown() {
-            this.$refs.chart.activated = true
-        },
         mouseleave() {
             this.$refs.chart.activated = false
         }
@@ -405,6 +402,10 @@ export default {
             }
         }
 
+        const mousedown = () => {
+            chart.value.activated = true
+        }
+
         onBeforeUnmount(() => {
             custom_event({ event: 'before-destroy' })
             ctrl_destroy()
@@ -427,7 +428,8 @@ export default {
             custom_event,
             range_changed,
             set_loader,
-            parse_colors
+            parse_colors,
+            mousedown
         }
     }
 }
