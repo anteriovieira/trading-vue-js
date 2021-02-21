@@ -1,4 +1,3 @@
-
 <template>
     <!-- Main component  -->
     <div class="trading-vue" v-bind:id="id"
@@ -253,44 +252,6 @@ export default {
         this.ctrl_destroy()
     },
     methods: {
-        goto(t) {
-            // TODO: limit goto & setRange (out of data error)
-            if (this.chart_props.ib) {
-                const ti_map = this.$refs.chart.ti_map
-                t = ti_map.gt2i(t, this.$refs.chart.ohlcv)
-            }
-            this.$refs.chart.goto(t)
-        },
-        setRange(t1, t2) {
-            if (this.chart_props.ib) {
-                const ti_map = this.$refs.chart.ti_map
-                const ohlcv = this.$refs.chart.ohlcv
-                t1 = ti_map.gt2i(t1, ohlcv)
-                t2 = ti_map.gt2i(t2, ohlcv)
-            }
-            this.$refs.chart.setRange(t1, t2)
-        },
-        getRange() {
-            if (this.chart_props.ib) {
-                const ti_map = this.$refs.chart.ti_map
-                // Time range => index range
-                return this.$refs.chart.range
-                    .map(x => ti_map.i2t(x))
-            }
-            return this.$refs.chart.range
-        },
-        getCursor() {
-
-            let cursor = this.$refs.chart.cursor
-            if (this.chart_props.ib) {
-                const ti_map = this.$refs.chart.ti_map
-                let copy = Object.assign({}, cursor)
-                copy.i = copy.t
-                copy.t = ti_map.i2t(copy.t)
-                return copy
-            }
-            return cursor
-        },
         showTheTip(text, color = "orange") {
             this.tip = { text, color }
         },
@@ -357,13 +318,37 @@ export default {
         const extensions = computed(() => props.extensions)
         const reset = ref(0)
         const tip = ref(null)
+        const chart = ref(null)
 
         // TODO implements resetChart
         const {
-            getRange,
-            setRange,
-            custom_event,
-        } = instance.proxy.$options.methods
+            methods: {
+                custom_event
+            },
+            computed: comp
+        } = instance.proxy.$options
+
+        const chart_props = computed(() => comp.chart_props)
+
+        const setRange = (t1, t2) => {
+            if (chart_props.value.ib) {
+                const ti_map = chart.ti_map
+                const ohlcv = chart.ohlcv
+                t1 = ti_map.gt2i(t1, ohlcv)
+                t2 = ti_map.gt2i(t2, ohlcv)
+            }
+            chart.setRange(t1, t2)
+        }
+
+        const getRange = () => {
+            if (chart_props.value.ib) {
+                const ti_map = chart.value.ti_map
+                // Time range => index range
+                return chart.value.range.map(x => ti_map.i2t(x))
+            }
+
+            return chart.value.range
+        }
 
         // TODO: reset extensions?
         const resetChart = async (resetRange = true) => {
@@ -380,9 +365,31 @@ export default {
             custom_event({ event: 'chart-reset', args: [] })
         }
 
+        const goto = (t) => {
+            // TODO: limit goto & setRange (out of data error)
+            if (chart_props.value.ib) {
+                const ti_map = chart.value.ti_map
+                t = ti_map.gt2i(t, chart.value.ohlcv)
+            }
+            chart.value.goto(t)
+        }
+
         const { ctrl_destroy, pre_dc, post_dc, controllers } = useXControl({
             xSettings, data, skin, extensions, resetChart
         })
+
+        const getCurso = () => {
+            let cursor = chart.value.cursor
+            if (chart_props.value.ib) {
+                const ti_map = chart.value.ti_map
+                let copy = Object.assign({}, cursor)
+                copy.i = copy.t
+                copy.t = ti_map.i2t(copy.t)
+                return copy
+            }
+
+            return cursor
+        }
 
         return {
             reset,
@@ -390,7 +397,12 @@ export default {
             ctrl_destroy,
             pre_dc,
             post_dc,
-            controllers
+            controllers,
+            chart,
+            goto,
+            setRange,
+            getRange,
+            getCurso
         }
     }
 }
