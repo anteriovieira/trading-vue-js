@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import { ref, computed, getCurrentInstance, nextTick } from 'vue-demi'
+import { ref, computed, getCurrentInstance, nextTick, onBeforeUnmount } from 'vue-demi'
 
 import Const from './stuff/constants.js'
 import Chart from './components/Chart.vue'
@@ -260,10 +260,6 @@ export default {
                 this.skin_proto.font : this.font
         }
     },
-    beforeDestroy() {
-        this.custom_event({ event: 'before-destroy' })
-        this.ctrl_destroy()
-    },
     methods: {
         custom_event(d) {
             if ('args' in d) {
@@ -403,6 +399,11 @@ export default {
         const legend_button = (event) => {
             custom_event({ event: 'legend-button-click', args: [event] })
         }
+
+        onBeforeUnmount(() => {
+            custom_event({ event: 'before-destroy' })
+            ctrl_destroy()
+        })
 
         return {
             reset,
