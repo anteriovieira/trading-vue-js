@@ -252,9 +252,6 @@ export default {
         this.ctrl_destroy()
     },
     methods: {
-        showTheTip(text, color = "orange") {
-            this.tip = { text, color }
-        },
         legend_button(event) {
             this.custom_event({
                 event: 'legend-button-click', args: [event]
@@ -391,6 +388,10 @@ export default {
             return cursor
         }
 
+        const showTheTip = (text, color = "orange") => {
+            tip.value = { text, color }
+        }
+
         return {
             reset,
             tip,
@@ -402,7 +403,8 @@ export default {
             goto,
             setRange,
             getRange,
-            getCursor
+            getCursor,
+            showTheTip
         }
     }
 }
