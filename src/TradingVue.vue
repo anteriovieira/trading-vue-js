@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { ref, computed, getCurrentInstance } from 'vue-demi'
+import { ref, computed, getCurrentInstance, nextTick } from 'vue-demi'
 
 import Const from './stuff/constants.js'
 import Chart from './components/Chart.vue'
@@ -253,17 +253,6 @@ export default {
         this.ctrl_destroy()
     },
     methods: {
-        // TODO: reset extensions?
-        resetChart(resetRange = true) {
-            this.reset++
-            let range = this.getRange()
-            if (!resetRange && range[0] && range[1]) {
-                this.$nextTick(() => this.setRange(...range))
-            }
-            this.$nextTick(() => this.custom_event({
-                event: 'chart-reset', args: []
-            }))
-        },
         goto(t) {
             // TODO: limit goto & setRange (out of data error)
             if (this.chart_props.ib) {
@@ -371,8 +360,25 @@ export default {
 
         // TODO implements resetChart
         const {
-            resetChart,
+            getRange,
+            setRange,
+            custom_event,
         } = instance.proxy.$options.methods
+
+        // TODO: reset extensions?
+        const resetChart = async (resetRange = true) => {
+            reset.value++
+
+            let range = getRange()
+            if (!resetRange && range[0] && range[1]) {
+                await nextTick()
+
+                setRange(...range)
+            }
+
+            await nextTick()
+            custom_event({ event: 'chart-reset', args: [] })
+        }
 
         const { ctrl_destroy, pre_dc, post_dc, controllers } = useXControl({
             xSettings, data, skin, extensions, resetChart
