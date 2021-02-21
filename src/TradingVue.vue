@@ -261,21 +261,6 @@ export default {
         }
     },
     methods: {
-        custom_event(d) {
-            if ('args' in d) {
-                this.$emit(d.event, ...d.args)
-            } else {
-                this.$emit(d.event)
-            }
-            let data = this.$props.data
-            let ctrl = this.controllers.length !== 0
-            if (ctrl) this.pre_dc(d)
-            if (data.tv) {
-                // If the data object is DataCube
-                data.on_custom_event(d.event, d.args)
-            }
-            if (ctrl) this.post_dc(d)
-        },
         range_changed(r) {
             if (this.chart_props.ib) {
                 const ti_map = this.$refs.chart.ti_map
@@ -311,7 +296,7 @@ export default {
             this.$refs.chart.activated = false
         }
     },
-    setup (props) {
+    setup (props, { emit }) {
         const instance = getCurrentInstance()
         const data = computed(() => props.data)
         const skin = computed(() => props.skin)
@@ -323,9 +308,6 @@ export default {
 
         // TODO implements resetChart
         const {
-            methods: {
-                custom_event
-            },
             computed: comp
         } = instance.proxy.$options
 
@@ -366,6 +348,26 @@ export default {
             custom_event({ event: 'chart-reset', args: [] })
         }
 
+        const { ctrl_destroy, pre_dc, post_dc, controllers } = useXControl({
+            xSettings, data, skin, extensions, resetChart
+        })
+
+        function custom_event (d) {
+            if ('args' in d) {
+                emit(d.event, ...d.args)
+            } else {
+                emit(d.event)
+            }
+            let data = props.data
+            let ctrl = controllers.value.length !== 0
+            if (ctrl) pre_dc(d)
+            if (data.tv) {
+                // If the data object is DataCube
+                data.on_custom_event(d.event, d.args)
+            }
+            if (ctrl) post_dc(d)
+        }
+
         const goto = (t) => {
             // TODO: limit goto & setRange (out of data error)
             if (chart_props.value.ib) {
@@ -374,10 +376,6 @@ export default {
             }
             chart.value.goto(t)
         }
-
-        const { ctrl_destroy, pre_dc, post_dc, controllers } = useXControl({
-            xSettings, data, skin, extensions, resetChart
-        })
 
         const getCursor = () => {
             let cursor = chart.value.cursor
@@ -418,7 +416,8 @@ export default {
             getRange,
             getCursor,
             showTheTip,
-            legend_button
+            legend_button,
+            custom_event
         }
     }
 }
