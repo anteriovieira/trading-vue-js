@@ -260,11 +260,6 @@ export default {
                 this.skin_proto.font : this.font
         }
     },
-    methods: {
-        mouseleave() {
-            this.$refs.chart.activated = false
-        }
-    },
     setup (props, { emit }) {
         const instance = getCurrentInstance()
         const data = computed(() => props.data)
@@ -285,12 +280,12 @@ export default {
 
         const setRange = (t1, t2) => {
             if (chart_props.value.ib) {
-                const ti_map = chart.ti_map
-                const ohlcv = chart.ohlcv
+                const ti_map = chart.value.ti_map
+                const ohlcv = chart.value.ohlcv
                 t1 = ti_map.gt2i(t1, ohlcv)
                 t2 = ti_map.gt2i(t2, ohlcv)
             }
-            chart.setRange(t1, t2)
+            chart.value.setRange(t1, t2)
         }
 
         const getRange = () => {
@@ -300,7 +295,7 @@ export default {
                 return chart.value.range.map(x => ti_map.i2t(x))
             }
 
-            return chart.value.range
+            return chart.value ? chart.value.range : []
         }
 
         // TODO: reset extensions?
@@ -328,8 +323,10 @@ export default {
             } else {
                 emit(d.event)
             }
+
             let data = props.data
             let ctrl = controllers.value.length !== 0
+
             if (ctrl) pre_dc(d)
             if (data.tv) {
                 // If the data object is DataCube
@@ -370,7 +367,7 @@ export default {
 
         const range_changed = (r) => {
             if (chart_props.value.ib) {
-                const ti_map = chart.ti_map
+                const ti_map = chart.value.ti_map
                 r = r.map(x => ti_map.i2t(x))
             }
 
@@ -406,6 +403,10 @@ export default {
             chart.value.activated = true
         }
 
+        const mouseleave = () => {
+            chart.value.activated = false
+        }
+
         onBeforeUnmount(() => {
             custom_event({ event: 'before-destroy' })
             ctrl_destroy()
@@ -429,7 +430,8 @@ export default {
             range_changed,
             set_loader,
             parse_colors,
-            mousedown
+            mousedown,
+            mouseleave
         }
     }
 }
