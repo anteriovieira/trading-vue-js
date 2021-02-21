@@ -261,17 +261,6 @@ export default {
         }
     },
     methods: {
-        range_changed(r) {
-            if (this.chart_props.ib) {
-                const ti_map = this.$refs.chart.ti_map
-                r = r.map(x => ti_map.i2t(x))
-            }
-            this.$emit('range-changed', r)
-            this.custom_event(
-                {event: 'range-changed', args: [r]}
-            )
-            if (this.onrange) this.onrange(r)
-        },
         set_loader(dc) {
             this.onrange = r => {
                 let pf = this.chart_props.ib ? '_ms' : ''
@@ -305,6 +294,7 @@ export default {
         const reset = ref(0)
         const tip = ref(null)
         const chart = ref(null)
+        let onrange = null
 
         // TODO implements resetChart
         const {
@@ -398,6 +388,21 @@ export default {
             custom_event({ event: 'legend-button-click', args: [event] })
         }
 
+        const range_changed = (r) => {
+            if (chart_props.value.ib) {
+                const ti_map = chart.ti_map
+                r = r.map(x => ti_map.i2t(x))
+            }
+
+            emit('range-changed', r)
+
+            custom_event({ event: 'range-changed', args: [r] })
+
+            if (onrange) {
+                onrange(r)
+            }
+        }
+
         onBeforeUnmount(() => {
             custom_event({ event: 'before-destroy' })
             ctrl_destroy()
@@ -417,7 +422,8 @@ export default {
             getCursor,
             showTheTip,
             legend_button,
-            custom_event
+            custom_event,
+            range_changed
         }
     }
 }
