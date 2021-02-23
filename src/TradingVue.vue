@@ -222,16 +222,6 @@ export default {
             this.parse_colors(chart_props.colors)
             return chart_props
         },
-        index_based() {
-            const base = this.$props.data
-            if (base.chart) {
-                return base.chart.indexBased
-            }
-            else if (base.data) {
-                return base.data.chart.indexBased
-            }
-            return false
-        },
         mod_ovs() {
             let arr = []
             for (var x of this.$props.extensions) {
@@ -282,7 +272,6 @@ export default {
                 props.chartConfig,
             )
         })
-        console.log(instance)
         const decubed = computed(() => {
             let base = props.data
             if (base.data !== undefined) {
@@ -292,6 +281,16 @@ export default {
             } else {
                 return base
             }
+        })
+        const index_based = computed(() => {
+            const base = props.data
+            if (base.chart) {
+                return base.chart.indexBased
+            }
+            else if (base.data) {
+                return base.data.chart.indexBased
+            }
+            return false
         })
         const chart_props = computed(() => comp.chart_props)
 
@@ -453,7 +452,8 @@ export default {
             ws,
             colorpack,
             chart_config,
-            decubed
+            decubed,
+            index_based
         }
     }
 }
