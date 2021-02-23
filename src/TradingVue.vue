@@ -222,10 +222,6 @@ export default {
             this.parse_colors(chart_props.colors)
             return chart_props
         },
-        font_comp() {
-            return this.skin_proto && this.skin_proto.font ?
-                this.skin_proto.font : this.font
-        }
     },
     setup (props, { emit }) {
         const instance = getCurrentInstance()
@@ -264,6 +260,10 @@ export default {
                 Const.ChartConfig,
                 props.chartConfig,
             )
+        })
+        const font_comp = computed(() => {
+            return skin_proto.value && skin_proto.value.font ?
+                skin_proto.value.font : props.font
         })
         const decubed = computed(() => {
             let base = props.data
@@ -454,7 +454,8 @@ export default {
             chart_config,
             decubed,
             index_based,
-            mod_ovs
+            mod_ovs,
+            font_comp,
         }
     }
 }
