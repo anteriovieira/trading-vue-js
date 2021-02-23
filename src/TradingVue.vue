@@ -456,6 +456,7 @@ export default {
             index_based,
             mod_ovs,
             font_comp,
+            resetChart
         }
     }
 }
