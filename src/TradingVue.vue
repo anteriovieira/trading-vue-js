@@ -282,11 +282,12 @@ export default {
                 props.chartConfig,
             )
         })
+        console.log(instance)
         const decubed = computed(() => {
             let base = props.data
             if (base.data !== undefined) {
                 // DataCube detected
-                base.init_tvjs(instance)
+                base.init_tvjs(instance.proxy)
                 return base.data
             } else {
                 return base
