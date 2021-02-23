@@ -222,12 +222,6 @@ export default {
             this.parse_colors(chart_props.colors)
             return chart_props
         },
-        chart_config() {
-            return Object.assign({},
-                Const.ChartConfig,
-                this.$props.chartConfig,
-            )
-        },
         decubed() {
             let data = this.$props.data
             if (data.data !== undefined) {
@@ -292,7 +286,12 @@ export default {
         const skin_proto = computed(() => {
             return skins.value[skin.value]
         })
-
+        const chart_config = computed(() => {
+            return Object.assign({},
+                Const.ChartConfig,
+                props.chartConfig,
+            )
+        })
         const chart_props = computed(() => comp.chart_props)
 
         const setRange = (t1, t2) => {
@@ -451,7 +450,8 @@ export default {
             mouseleave,
             skin_proto,
             ws,
-            colorpack
+            colorpack,
+            chart_config
         }
     }
 }
