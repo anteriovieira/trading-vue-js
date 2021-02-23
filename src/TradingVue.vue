@@ -64,6 +64,10 @@ export default {
     components: {
         Chart, Toolbar, Widgets, TheTip
     },
+    emits: [
+        'register-tools', 'data-len-changed', 'range-changed',
+        'signal'
+    ],
     props: {
         titleTxt: {
             type: String,
