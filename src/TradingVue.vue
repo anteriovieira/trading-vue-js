@@ -276,6 +276,23 @@ export default {
             computed: comp
         } = instance.proxy.$options
 
+        const colorpack = computed(() => {
+            let sel = skins.value[skin.value]
+            return sel ? sel.colors : undefined
+        })
+        const skins = computed(() => {
+            let sks = {}
+            for (var x of extensions.value) {
+                for (var id in x.skins || {}) {
+                    sks[id] = x.skins[id]
+                }
+            }
+            return sks
+        })
+        const skin_proto = computed(() => {
+            return skins.value[skin.value]
+        })
+
         const chart_props = computed(() => comp.chart_props)
 
         const setRange = (t1, t2) => {
@@ -313,8 +330,8 @@ export default {
             custom_event({ event: 'chart-reset', args: [] })
         }
 
-        const { ctrl_destroy, pre_dc, post_dc, controllers } = useXControl({
-            xSettings, data, skin, extensions, resetChart
+        const { ctrl_destroy, pre_dc, post_dc, controllers, ws } = useXControl({
+            xSettings, data, skin, extensions, resetChart, skin_proto
         })
 
         function custom_event (d) {
@@ -431,7 +448,10 @@ export default {
             set_loader,
             parse_colors,
             mousedown,
-            mouseleave
+            mouseleave,
+            skin_proto,
+            ws,
+            colorpack
         }
     }
 }
