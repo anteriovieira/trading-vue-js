@@ -222,16 +222,6 @@ export default {
             this.parse_colors(chart_props.colors)
             return chart_props
         },
-        decubed() {
-            let data = this.$props.data
-            if (data.data !== undefined) {
-                // DataCube detected
-                data.init_tvjs(this)
-                return data.data
-            } else {
-                return data
-            }
-        },
         index_based() {
             const base = this.$props.data
             if (base.chart) {
@@ -291,6 +281,16 @@ export default {
                 Const.ChartConfig,
                 props.chartConfig,
             )
+        })
+        const decubed = computed(() => {
+            let base = props.data
+            if (base.data !== undefined) {
+                // DataCube detected
+                base.init_tvjs(instance)
+                return base.data
+            } else {
+                return base
+            }
         })
         const chart_props = computed(() => comp.chart_props)
 
@@ -451,7 +451,8 @@ export default {
             skin_proto,
             ws,
             colorpack,
-            chart_config
+            chart_config,
+            decubed
         }
     }
 }
