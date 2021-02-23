@@ -198,31 +198,6 @@ export default {
             default: 0
         }
     },
-    computed: {
-        // Copy a subset of TradingVue props
-        chart_props() {
-            let offset = this.$props.toolbar ?
-                this.chart_config.TOOLBAR : 0
-            let chart_props = {
-                title_txt: this.$props.titleTxt,
-                overlays: this.$props.overlays.concat(this.mod_ovs),
-                data: this.decubed,
-                width: this.$props.width - offset,
-                height: this.$props.height,
-                font: this.font_comp,
-                buttons: this.$props.legendButtons,
-                toolbar: this.$props.toolbar,
-                ib: this.$props.indexBased || this.index_based || false,
-                colors: Object.assign({}, this.$props.colors ||
-                    this.colorpack),
-                skin: this.skin_proto,
-                timezone: this.$props.timezone
-            }
-
-            this.parse_colors(chart_props.colors)
-            return chart_props
-        },
-    },
     setup (props, { emit }) {
         const instance = getCurrentInstance()
         const data = computed(() => props.data)
@@ -233,12 +208,6 @@ export default {
         const tip = ref(null)
         const chart = ref(null)
         let onrange = null
-
-        // TODO implements resetChart
-        const {
-            computed: comp
-        } = instance.proxy.$options
-
         const colorpack = computed(() => {
             let sel = skins.value[skin.value]
             return sel ? sel.colors : undefined
@@ -292,8 +261,30 @@ export default {
             }
             return arr
         })
-        const chart_props = computed(() => comp.chart_props)
+        // Copy a subset of TradingVue props
+        const chart_props = computed(() => {
+            let offset = props.toolbar ?
+                chart_config.value.TOOLBAR : 0
+            let c_props = {
+                title_txt: props.titleTxt,
+                overlays: props.overlays.concat(mod_ovs.value),
+                data: decubed.value,
+                width: props.width - offset,
+                height: props.height,
+                font: font_comp.value,
+                buttons: props.legendButtons,
+                toolbar: props.toolbar,
+                ib: props.indexBased || index_based.value || false,
+                colors: Object.assign({}, props.colors ||
+                    colorpack.value),
+                skin: skin_proto.value,
+                timezone: props.timezone
+            }
 
+            parse_colors(c_props.colors)
+
+            return c_props
+        })
         const setRange = (t1, t2) => {
             if (chart_props.value.ib) {
                 const ti_map = chart.value.ti_map
@@ -303,7 +294,6 @@ export default {
             }
             chart.value.setRange(t1, t2)
         }
-
         const getRange = () => {
             if (chart_props.value.ib) {
                 const ti_map = chart.value.ti_map
@@ -456,7 +446,8 @@ export default {
             index_based,
             mod_ovs,
             font_comp,
-            resetChart
+            resetChart,
+            chart_props
         }
     }
 }
