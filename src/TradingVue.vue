@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import { ref, computed, getCurrentInstance, nextTick, onBeforeUnmount } from 'vue-demi'
+import { ref, computed, nextTick, onBeforeUnmount } from 'vue-demi'
 
 import Const from './stuff/constants.js'
 import Chart from './components/Chart.vue'
@@ -198,70 +198,7 @@ export default {
             default: 0
         }
     },
-    computed: {
-        // Copy a subset of TradingVue props
-        chart_props() {
-            let offset = this.$props.toolbar ?
-                this.chart_config.TOOLBAR : 0
-            let chart_props = {
-                title_txt: this.$props.titleTxt,
-                overlays: this.$props.overlays.concat(this.mod_ovs),
-                data: this.decubed,
-                width: this.$props.width - offset,
-                height: this.$props.height,
-                font: this.font_comp,
-                buttons: this.$props.legendButtons,
-                toolbar: this.$props.toolbar,
-                ib: this.$props.indexBased || this.index_based || false,
-                colors: Object.assign({}, this.$props.colors ||
-                    this.colorpack),
-                skin: this.skin_proto,
-                timezone: this.$props.timezone
-            }
-
-            this.parse_colors(chart_props.colors)
-            return chart_props
-        },
-        chart_config() {
-            return Object.assign({},
-                Const.ChartConfig,
-                this.$props.chartConfig,
-            )
-        },
-        decubed() {
-            let data = this.$props.data
-            if (data.data !== undefined) {
-                // DataCube detected
-                data.init_tvjs(this)
-                return data.data
-            } else {
-                return data
-            }
-        },
-        index_based() {
-            const base = this.$props.data
-            if (base.chart) {
-                return base.chart.indexBased
-            }
-            else if (base.data) {
-                return base.data.chart.indexBased
-            }
-            return false
-        },
-        mod_ovs() {
-            let arr = []
-            for (var x of this.$props.extensions) {
-                arr.push(...Object.values(x.overlays))
-            }
-            return arr
-        },
-        font_comp() {
-            return this.skin_proto && this.skin_proto.font ?
-                this.skin_proto.font : this.font
-        }
-    },
     setup (props, { emit }) {
-        const instance = getCurrentInstance()
         const data = computed(() => props.data)
         const skin = computed(() => props.skin)
         const xSettings = computed(() => props.xSettings)
@@ -271,12 +208,85 @@ export default {
         const chart = ref(null)
         let onrange = null
 
-        // TODO implements resetChart
-        const {
-            computed: comp
-        } = instance.proxy.$options
+        const colorpack = computed(() => {
+            let sel = skins.value[skin.value]
+            return sel ? sel.colors : undefined
+        })
 
-        const chart_props = computed(() => comp.chart_props)
+        const skins = computed(() => {
+            let sks = {}
+            for (var x of extensions.value) {
+                for (var id in x.skins || {}) {
+                    sks[id] = x.skins[id]
+                }
+            }
+            return sks
+        })
+    
+        const skin_proto = computed(() => {
+            return skins.value[skin.value]
+        })
+        const chart_config = computed(() => {
+            return Object.assign({},
+                Const.ChartConfig,
+                props.chartConfig,
+            )
+        } )
+        const mod_ovs = computed(() => {
+            let arr = []
+            for (var x of props.extensions) {
+                arr.push(...Object.values(x.overlays))
+            }
+            return arr
+        })
+        const decubed = computed(() => {
+            let base = props.data
+            if (base.data !== undefined) {
+                // DataCube detected
+                base.init_tvjs(this)
+                return base.data
+            } else {
+                return base
+            }
+        })
+        const font_comp = computed(() => {
+            return skin_proto.value && skin_proto.value.font ?
+                skin_proto.value.font : props.font
+        })
+        const index_based = computed(() => {
+            const base = props.data
+            if (base.chart) {
+                return base.chart.indexBased
+            }
+            else if (base.data) {
+                return base.data.chart.indexBased
+            }
+            return false
+        })
+
+        // Copy a subset of TradingVue props
+        const chart_props = computed(() => {
+            let offset = props.toolbar ?
+                chart_config.value.TOOLBAR : 0
+            let c_props = {
+                title_txt: props.titleTxt,
+                overlays: props.overlays.concat(mod_ovs.value),
+                data: decubed.value,
+                width: props.width - offset,
+                height: props.height,
+                font: font_comp.value,
+                buttons: props.legendButtons,
+                toolbar: props.toolbar,
+                ib: props.indexBased || index_based.value || false,
+                colors: Object.assign({}, props.colors || colorpack.value),
+                skin: skin_proto.value,
+                timezone: props.timezone
+            }
+
+            parse_colors(c_props.colors)
+
+            return c_props
+        })
 
         const setRange = (t1, t2) => {
             if (chart_props.value.ib) {
@@ -313,8 +323,8 @@ export default {
             custom_event({ event: 'chart-reset', args: [] })
         }
 
-        const { ctrl_destroy, pre_dc, post_dc, controllers } = useXControl({
-            xSettings, data, skin, extensions, resetChart
+        const { ctrl_destroy, pre_dc, post_dc, controllers, ws } = useXControl({
+            xSettings, data, skin, extensions, resetChart, skin_proto
         })
 
         function custom_event (d) {
@@ -413,6 +423,7 @@ export default {
         })
 
         return {
+            ws,
             reset,
             tip,
             ctrl_destroy,
@@ -431,7 +442,12 @@ export default {
             set_loader,
             parse_colors,
             mousedown,
-            mouseleave
+            mouseleave,
+            chart_props,
+            skin_proto,
+            chart_config,
+            decubed,
+            mod_ovs
         }
     }
 }

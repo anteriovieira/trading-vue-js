@@ -1,6 +1,6 @@
 import { onMounted, ref, getCurrentInstance, computed, watch } from 'vue-demi'
 
-export const useXControl = ({ extensions, xSettings, skin, data, resetChart = () => {} }) => {
+export const useXControl = ({ extensions, xSettings, skin, skin_proto, data, resetChart = () => {} }) => {
     const ws = computed(() => {
         let _ws = {}
         for (var ctrl of controllers.value) {
@@ -12,22 +12,6 @@ export const useXControl = ({ extensions, xSettings, skin, data, resetChart = ()
             }
         }
         return _ws
-    })
-    const colorpack = computed(() => {
-        let sel = skins.value[skin.value]
-        return sel ? sel.colors : undefined
-    })
-    const skins = computed(() => {
-        let sks = {}
-        for (var x of extensions.value) {
-            for (var id in x.skins || {}) {
-                sks[id] = x.skins[id]
-            }
-        }
-        return sks
-    })
-    const skin_proto = computed(() => {
-        return skins.value[skin.value]
     })
     const instance = getCurrentInstance()
     const controllers = ref([])
@@ -109,7 +93,6 @@ export const useXControl = ({ extensions, xSettings, skin, data, resetChart = ()
     return {
         post_dc,
         pre_dc,
-        colorpack,
         ws,
         ctrl_destroy,
         controllers
