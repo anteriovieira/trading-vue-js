@@ -222,13 +222,6 @@ export default {
             this.parse_colors(chart_props.colors)
             return chart_props
         },
-        mod_ovs() {
-            let arr = []
-            for (var x of this.$props.extensions) {
-                arr.push(...Object.values(x.overlays))
-            }
-            return arr
-        },
         font_comp() {
             return this.skin_proto && this.skin_proto.font ?
                 this.skin_proto.font : this.font
@@ -291,6 +284,13 @@ export default {
                 return base.data.chart.indexBased
             }
             return false
+        })
+        const mod_ovs = computed(() => {
+            let arr = []
+            for (var x of props.extensions) {
+                arr.push(...Object.values(x.overlays))
+            }
+            return arr
         })
         const chart_props = computed(() => comp.chart_props)
 
@@ -453,7 +453,8 @@ export default {
             colorpack,
             chart_config,
             decubed,
-            index_based
+            index_based,
+            mod_ovs
         }
     }
 }
